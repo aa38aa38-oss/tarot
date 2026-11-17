@@ -1,0 +1,32 @@
+import type { Question } from '../lib/questions'
+
+// 題目＋選項，戰鬥與測驗共用
+export default function QuestionCard({ q, picked, onAnswer, compact }: { q: Question; picked: number | null; onAnswer: (i: number) => void; compact?: boolean }) {
+  const answered = picked !== null
+  const isImageOptions = q.options.some((o) => o.image)
+  return (
+    <>
+      <div className={compact ? 'question compact' : 'question panel'}>
+        {q.image && (
+          <div className="q-image hide-name">
+            <img src={q.image} alt="題目牌面" />
+          </div>
+        )}
+        <p className="pre q-text">{q.prompt}</p>
+      </div>
+      <div className={isImageOptions ? 'options images' : compact ? 'options two' : 'options'}>
+        {q.options.map((o, i) => {
+          let cls = 'option'
+          if (answered && i === q.answer) cls += ' correct'
+          else if (answered && i === picked) cls += ' wrong'
+          return (
+            <button key={i} className={cls} onClick={() => onAnswer(i)} disabled={answered}>
+              {o.image ? <span className="hide-name"><img src={o.image} alt={`選項 ${i + 1}`} /></span> : o.label}
+              {o.image && answered && <span className="small opt-caption">{o.label}</span>}
+            </button>
+          )
+        })}
+      </div>
+    </>
+  )
+}

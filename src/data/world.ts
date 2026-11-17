@@ -6,7 +6,11 @@ export interface Monster {
   attack: number
   boss?: boolean
   intro: string
+  skill: string // 每 3 回合施放的必殺技
 }
+
+// 戰鬥舞台背景
+export type StageTheme = 'dawn' | 'cliff' | 'hall' | 'savanna' | 'cave' | 'night' | 'golden' | 'cosmos' | 'field'
 
 export interface Chapter {
   id: string
@@ -14,6 +18,7 @@ export interface Chapter {
   subtitle: string
   cardIds: string[] // 本章要學的牌（序章為空）
   quizPool: 'basics' | 'chapter' | 'all-major'
+  stage: StageTheme
   monster: Monster
   xpReward: number
 }
@@ -37,36 +42,36 @@ export const REGIONS: Region[] = [
 
 export const CHAPTERS: Chapter[] = [
   {
-    id: 'c0', title: '序章・塔羅是什麼', subtitle: '78 張牌的地圖', cardIds: [], quizPool: 'basics', xpReward: 40,
-    monster: { name: '迷路的小精靈', emoji: '🧚', hp: 60, attack: 10, intro: '「我迷路了……你能回答我幾個關於塔羅的問題嗎？」' },
+    id: 'c0', title: '序章・塔羅是什麼', subtitle: '78 張牌的地圖', cardIds: [], quizPool: 'basics', stage: 'dawn', xpReward: 40,
+    monster: { name: '迷路的小精靈', emoji: '🧚', hp: 60, attack: 10, intro: '「我迷路了……你能回答我幾個關於塔羅的問題嗎？」', skill: '迷途花粉' },
   },
   {
-    id: 'c1', title: '第一章・啟程', subtitle: '愚者、魔術師、女祭司、皇后', cardIds: ['m00', 'm01', 'm02', 'm03'], quizPool: 'chapter', xpReward: 60,
-    monster: { name: '懸崖邊的影子', emoji: '👤', hp: 100, attack: 15, intro: '一團影子擋住了愚者的去路：「想往前走？先證明你認得這些面孔！」' },
+    id: 'c1', title: '第一章・啟程', subtitle: '愚者、魔術師、女祭司、皇后', cardIds: ['m00', 'm01', 'm02', 'm03'], quizPool: 'chapter', stage: 'cliff', xpReward: 60,
+    monster: { name: '懸崖邊的影子', emoji: '👻', hp: 100, attack: 15, intro: '一團影子擋住了愚者的去路：「想往前走？先證明你認得這些面孔！」', skill: '暗影纏繞' },
   },
   {
-    id: 'c2', title: '第二章・秩序', subtitle: '皇帝、教皇、戀人、戰車', cardIds: ['m04', 'm05', 'm06', 'm07'], quizPool: 'chapter', xpReward: 70,
-    monster: { name: '鐵面守門人', emoji: '🗿', hp: 100, attack: 18, intro: '石像守門人緩緩睜眼：「規則就是規則。答對了才能通過。」' },
+    id: 'c2', title: '第二章・秩序', subtitle: '皇帝、教皇、戀人、戰車', cardIds: ['m04', 'm05', 'm06', 'm07'], quizPool: 'chapter', stage: 'hall', xpReward: 70,
+    monster: { name: '鐵面守門人', emoji: '🗿', hp: 100, attack: 18, intro: '石像守門人緩緩睜眼：「規則就是規則。答對了才能通過。」', skill: '岩石重擊' },
   },
   {
-    id: 'c3', title: '第三章・內在', subtitle: '力量、隱士、命運之輪、正義', cardIds: ['m08', 'm09', 'm10', 'm11'], quizPool: 'chapter', xpReward: 80,
-    monster: { name: '咆哮的野獅', emoji: '🦁', hp: 120, attack: 20, intro: '一頭野獅攔路怒吼。用你的知識，溫柔地馴服牠吧。' },
+    id: 'c3', title: '第三章・內在', subtitle: '力量、隱士、命運之輪、正義', cardIds: ['m08', 'm09', 'm10', 'm11'], quizPool: 'chapter', stage: 'savanna', xpReward: 80,
+    monster: { name: '咆哮的野獅', emoji: '🦁', hp: 120, attack: 20, intro: '一頭野獅攔路怒吼。用你的知識，溫柔地馴服牠吧。', skill: '狂暴咆哮' },
   },
   {
-    id: 'c4', title: '第四章・轉化', subtitle: '吊人、死神、節制、惡魔', cardIds: ['m12', 'm13', 'm14', 'm15'], quizPool: 'chapter', xpReward: 90,
-    monster: { name: '鎖鏈魔', emoji: '😈', hp: 120, attack: 22, intro: '鎖鏈魔晃動著鐵鏈：「被我綁住的人，都以為自己逃不掉……」' },
+    id: 'c4', title: '第四章・轉化', subtitle: '吊人、死神、節制、惡魔', cardIds: ['m12', 'm13', 'm14', 'm15'], quizPool: 'chapter', stage: 'cave', xpReward: 90,
+    monster: { name: '鎖鏈魔', emoji: '😈', hp: 120, attack: 22, intro: '鎖鏈魔晃動著鐵鏈：「被我綁住的人，都以為自己逃不掉……」', skill: '束縛之鏈' },
   },
   {
-    id: 'c5', title: '第五章・夜空', subtitle: '高塔、星星、月亮', cardIds: ['m16', 'm17', 'm18'], quizPool: 'chapter', xpReward: 90,
-    monster: { name: '月下幻狼', emoji: '🐺', hp: 120, attack: 24, intro: '月光下，幻狼的身影忽隱忽現。別被幻象騙了！' },
+    id: 'c5', title: '第五章・夜空', subtitle: '高塔、星星、月亮', cardIds: ['m16', 'm17', 'm18'], quizPool: 'chapter', stage: 'night', xpReward: 90,
+    monster: { name: '月下幻狼', emoji: '🐺', hp: 120, attack: 24, intro: '月光下，幻狼的身影忽隱忽現。別被幻象騙了！', skill: '月下幻影' },
   },
   {
-    id: 'c6', title: '第六章・圓滿', subtitle: '太陽、審判、世界', cardIds: ['m19', 'm20', 'm21'], quizPool: 'chapter', xpReward: 100,
-    monster: { name: '號角守護者', emoji: '📯', hp: 120, attack: 25, intro: '天使的號角響起：「回顧你的旅程，證明你已準備好迎接圓滿。」' },
+    id: 'c6', title: '第六章・圓滿', subtitle: '太陽、審判、世界', cardIds: ['m19', 'm20', 'm21'], quizPool: 'chapter', stage: 'golden', xpReward: 100,
+    monster: { name: '號角守護者', emoji: '📯', hp: 120, attack: 25, intro: '天使的號角響起：「回顧你的旅程，證明你已準備好迎接圓滿。」', skill: '審判之音' },
   },
   {
-    id: 'boss', title: '終章・大阿爾克那試煉', subtitle: '22 張大牌總複習', cardIds: [], quizPool: 'all-major', xpReward: 200,
-    monster: { name: '世界之蛇・烏洛波洛斯', emoji: '🐉', hp: 240, attack: 25, boss: true, intro: '吞食自己尾巴的巨蛇從地底升起：「起點即是終點……你真的走完這趟旅程了嗎？」' },
+    id: 'boss', title: '終章・大阿爾克那試煉', subtitle: '22 張大牌總複習', cardIds: [], quizPool: 'all-major', stage: 'cosmos', xpReward: 200,
+    monster: { name: '世界之蛇・烏洛波洛斯', emoji: '🐉', hp: 240, attack: 25, boss: true, intro: '吞食自己尾巴的巨蛇從地底升起：「起點即是終點……你真的走完這趟旅程了嗎？」', skill: '永劫輪迴' },
   },
 ]
 

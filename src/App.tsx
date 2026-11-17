@@ -12,6 +12,7 @@ import CodexScreen from './screens/CodexScreen'
 import DailyScreen from './screens/DailyScreen'
 import CommissionScreen from './screens/CommissionScreen'
 import ProfileScreen from './screens/ProfileScreen'
+import SkipTestScreen from './screens/SkipTestScreen'
 
 export type Screen =
   | { name: 'map' }
@@ -80,9 +81,11 @@ export default function App() {
   const ctx: GameCtx = { save, setSave, gainXp, go, toast }
   const lv = levelInfo(save.xp)
   const inBattle = screen.name === 'battle'
+  const fullBattle = screen.name === 'battle' && screen.mode.kind !== 'skip'
 
   return (
     <div className="app">
+      {!fullBattle && (
       <header className="topbar">
         <button className="avatar-btn" onClick={() => go({ name: 'profile' })} aria-label="角色">
           <span className="avatar">{save.avatar}</span>
@@ -102,13 +105,15 @@ export default function App() {
           <div>❤️ {maxHp(lv.level)}</div>
         </div>
       </header>
+      )}
 
       <main className={inBattle ? 'main battle-main' : 'main'}>
         {screen.name === 'map' && <MapScreen ctx={ctx} />}
         {screen.name === 'chapter' && <ChapterScreen ctx={ctx} chapterId={screen.id} />}
         {screen.name === 'lesson' && <LessonScreen ctx={ctx} cardId={screen.cardId} chapterId={screen.chapterId} />}
         {screen.name === 'basics' && <BasicsScreen ctx={ctx} />}
-        {screen.name === 'battle' && <BattleScreen key={navKey} ctx={ctx} mode={screen.mode} />}
+        {screen.name === 'battle' && screen.mode.kind === 'skip' && <SkipTestScreen key={navKey} ctx={ctx} />}
+        {fullBattle && screen.name === 'battle' && <BattleScreen key={navKey} ctx={ctx} mode={screen.mode} />}
         {screen.name === 'codex' && <CodexScreen ctx={ctx} />}
         {screen.name === 'daily' && <DailyScreen ctx={ctx} />}
         {screen.name === 'commission' && <CommissionScreen ctx={ctx} />}

@@ -91,10 +91,13 @@ const GENERATORS: Gen[] = [
 // 不同題型的出現權重：越前面越基礎
 const TYPE_WEIGHTS = [4, 2, 4, 3, 2, 3, 3, 1]
 
-export function makeCardQuestion(save: SaveData, pool: TarotCard[], avoid?: string): Question {
+// 秘術用較難的題型：牌義、象徵、情境
+export const HARD_TYPES = [3, 5, 6]
+
+export function makeCardQuestion(save: SaveData, pool: TarotCard[], avoid?: string, types?: number[]): Question {
   const candidates = pool.length > 1 && avoid ? pool.filter((c) => c.id !== avoid) : pool
   const card = weightedPick(candidates, (c) => weightFor(save, c.id))
-  const idx = weightedPick(GENERATORS.map((_, i) => i), (i) => TYPE_WEIGHTS[i])
+  const idx = weightedPick(types ?? GENERATORS.map((_, i) => i), (i) => TYPE_WEIGHTS[i])
   return GENERATORS[idx](card, pool)
 }
 
