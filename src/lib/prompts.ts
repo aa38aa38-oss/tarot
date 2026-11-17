@@ -22,45 +22,15 @@ export function dailyPrompt(card: TarotCard, note: string) {
 
 今天我做了「每日一抽」，抽到大阿爾克那 ${card.roman} 號「${card.nameZh}（${card.nameEn}）」正位。
 
-我自己對這張牌的解讀與今天的感受是：
-「${note || '（我還沒寫）'}」
+${note || '（我還沒選擇今天的感受）'}
 
 請你：
-1. 先肯定我解讀中做得好的地方
+1. 用這張牌，幫我解讀今天可能遇到的課題（結合我選的關鍵字和心情）
 2. 補充我可能沒注意到的牌義或象徵
 3. 給我今天一個具體、可以做到的小行動建議
 4. 給我一句適合今天的鼓勵
 
 回答請控制在 300 字左右，語氣溫暖。`
-}
-
-export function readingPrompt(
-  npcQuestion: string,
-  cards: { position: string; card: TarotCard }[],
-  myReading: string,
-) {
-  const list = cards
-    .map((c, i) => `${i + 1}. 【${c.position}】${c.card.nameZh}（${c.card.nameEn}）正位`)
-    .join('\n')
-  return `${ROLE}
-
-我正在練習塔羅解讀，請你擔任我的老師，批改我的解讀。
-
-■ 求問者的問題：
-「${npcQuestion}」
-
-■ 牌陣（三張牌，皆為正位）：
-${list}
-
-■ 我的解讀：
-「${myReading || '（我還沒寫）'}」
-
-請依照以下格式回饋：
-1. 【評分】給我 1～10 分，並用一句話說明理由
-2. 【做得好的地方】具體指出 1～3 點
-3. 【可以加強的地方】例如：牌義是否正確、有沒有連結到問題、三張牌之間有沒有串成一個故事、有沒有給求問者實際可行的建議
-4. 【示範解讀】請示範一段約 200 字、溫柔而具體的完整解讀
-5. 【下次練習重點】一句話`
 }
 
 export async function copyText(text: string): Promise<boolean> {
@@ -79,4 +49,27 @@ export async function copyText(text: string): Promise<boolean> {
     document.body.removeChild(ta)
     return ok
   }
+}
+
+// 委託（點選式）完成後：請 AI 點評玩家的選擇並示範完整解讀
+export function commissionPrompt(npcQuestion: string, slots: { position: string; card: TarotCard }[], picks: string[]) {
+  const list = slots.map((s, i) => `${i + 1}. 【${s.position}】${s.card.nameZh}（${s.card.nameEn}）正位`).join('\n')
+  return `${ROLE}
+
+我正在練習塔羅解讀，請你擔任我的老師。
+
+■ 求問者的問題：
+「${npcQuestion}」
+
+■ 牌陣（三張牌，皆為正位）：
+${list}
+
+■ 我在練習中做的選擇：
+${picks.map((p) => `・${p}`).join('\n')}
+
+請你：
+1. 【點評】我的選擇哪些很到位、哪些可以更好？
+2. 【示範解讀】把三張牌串成一個完整的故事，約 200 字，語氣溫柔、具體，並回應求問者的問題
+3. 【牌與牌的關係】這三張牌放在一起，有什麼值得注意的呼應或對比？
+4. 【給我的一個練習重點】一句話`
 }

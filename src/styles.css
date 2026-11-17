@@ -142,8 +142,8 @@ input:focus, textarea:focus { outline: 2px solid var(--gold2); border-color: tra
 .lesson-item.done { border-color: #2f6b4a; }
 .lesson-thumb.emoji { font-size: 2rem; }
 .lesson-item > span:nth-child(2) { flex: 1; }
-.lesson-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-@media (min-width: 520px) { .lesson-grid { grid-template-columns: repeat(4, 1fr); } }
+.lesson-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 520px) { .lesson-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .lesson-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .lesson-card img { border-radius: 6px; filter: grayscale(0.7) brightness(0.8); }
 .lesson-card.done img { filter: none; }
@@ -156,7 +156,7 @@ input:focus, textarea:focus { outline: 2px solid var(--gold2); border-color: tra
 .monster-emoji.huge { font-size: 5rem; text-align: center; display: block; animation: float 3s ease-in-out infinite; }
 
 .card-detail { display: flex; flex-direction: column; gap: 12px; }
-.card-detail-top { display: grid; grid-template-columns: 42% 1fr; gap: 14px; align-items: start; }
+.card-detail-top { display: grid; grid-template-columns: 42% minmax(0, 1fr); gap: 14px; align-items: start; }
 .card-big { border-radius: 10px; box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5), 0 0 24px rgba(242, 196, 100, 0.15); }
 .card-number { font-family: var(--serif); color: var(--gold); font-size: 1.1rem; letter-spacing: 2px; }
 .card-title { font-size: 1.9rem; margin: 0; }
@@ -211,8 +211,8 @@ details summary { cursor: pointer; }
 .battle-result, .battle-intro { padding-top: 16px; }
 
 /* ---------- 圖鑑 ---------- */
-.codex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-@media (min-width: 520px) { .codex-grid { grid-template-columns: repeat(4, 1fr); } }
+.codex-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 520px) { .codex-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .codex-card { background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .codex-card img { border-radius: 6px; }
 .codex-card:hover:not(:disabled) img { box-shadow: 0 0 16px rgba(242, 196, 100, 0.5); }
@@ -235,7 +235,7 @@ details summary { cursor: pointer; }
 .big-back { font-size: 2.5rem; color: var(--gold); box-shadow: 0 0 40px rgba(242, 196, 100, 0.3); animation: float 3s ease-in-out infinite; }
 .deck.flipping .card-back { animation: flip 0.7s ease-in; }
 @keyframes flip { to { transform: rotateY(90deg) scale(1.1); } }
-.daily-card { display: grid; grid-template-columns: 42% 1fr; gap: 14px; align-items: start; }
+.daily-card { display: grid; grid-template-columns: 42% minmax(0, 1fr); gap: 14px; align-items: start; }
 .reveal { animation: reveal 0.6s ease-out; }
 @keyframes reveal { from { transform: rotateY(90deg); } }
 .journal { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -244,9 +244,10 @@ details summary { cursor: pointer; }
 
 /* ---------- 委託 ---------- */
 .npc { display: flex; gap: 12px; align-items: center; }
-.spread { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.spread { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .spread-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; background: var(--panel); border-radius: 10px; padding: 8px 6px; }
-.spread-slot img { border-radius: 6px; }
+.spread-slot img { border-radius: 6px; width: 100%; }
+.spread-slot { min-width: 0; }
 
 /* ---------- 角色 ---------- */
 .profile-head { text-align: center; }
@@ -271,3 +272,37 @@ details summary { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- 委託（點選式） ---------- */
+.ctype-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ctype { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
+.ctype:hover:not(:disabled) { border-color: var(--gold2); }
+.ctype-emoji { font-size: 1.7rem; }
+.ctype.locked { opacity: 0.5; }
+.match-slots { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.match-slot { text-align: left; background: var(--bg2); border: 2px dashed var(--line); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.match-slot.active { border: 2px solid var(--gold); box-shadow: 0 0 10px #f2c46455; }
+.match-text { font-size: 0.95rem; }
+.phrase-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.phrase { text-align: left; background: var(--panel2); border: 2px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: 0.93rem; display: flex; flex-direction: column; gap: 4px; }
+.phrase:hover:not(:disabled) { border-color: var(--gold2); }
+.phrase.used { opacity: 0.4; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.chip { background: var(--panel2); border: 2px solid var(--line); border-radius: 99px; padding: 6px 12px; font-size: 0.88rem; text-align: left; }
+.chip.active { border-color: var(--gold); background: #3b2f12; color: var(--gold); }
+.match-slot.correct, .phrase.correct, .chip.correct, .apprentice.correct, .spot-line.wrong { border-color: var(--green); border-style: solid; background: #1d3d2e; opacity: 1; }
+.match-slot.wrong, .phrase.wrong, .chip.wrong, .apprentice.wrong, .spot-line.miss { border-color: var(--red); border-style: solid; background: #45202a; opacity: 1; }
+.spot-line.wrong { border-color: var(--red); background: #45202a; }
+.fix { color: var(--green); margin: 2px 0 0; }
+.why { color: var(--muted); }
+.cloze { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 10px; }
+.cloze-line p { margin: 0; }
+.blank { display: inline; border-bottom: 2px solid var(--gold); color: var(--gold); padding: 0 2px; }
+.blank.correct { color: var(--green); border-color: var(--green); }
+.blank.wrong { color: var(--red); border-color: var(--red); text-decoration: line-through; }
+.apprentices, .spot-lines { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.apprentice, .spot-line { text-align: left; background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; opacity: 1; }
+.apprentice:disabled, .spot-line:disabled, .phrase:disabled, .chip:disabled { cursor: default; opacity: 1; }
+.result-panel { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.stars-big { font-size: 2rem; letter-spacing: 4px; }
+.daily-pick .label { margin-top: 0; }
