@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { GameCtx } from '../App'
 import { CHAPTERS, Monster, StageTheme } from '../data/world'
+import { ZONES, zoneEntry } from '../data/overworld'
 import { MAJOR_ARCANA, TarotCard, cardById } from '../data/majorArcana'
 import { HARD_TYPES, Question, makeBasicsQuestion, makeCardQuestion, poolFromIds } from '../lib/questions'
 import { XP, levelInfo, maxHp, recordAnswer } from '../lib/game'
 import { isMuted, setMuted, sfx } from '../lib/sfx'
 import QuestionCard from '../components/QuestionCard'
 
-export type BattleMode = { kind: 'chapter'; chapterId: string } | { kind: 'training' } | { kind: 'skip' }
+export type BattleMode =
+  | { kind: 'chapter'; chapterId: string; from?: 'world' }
+  | { kind: 'training'; from?: 'world' }
+  | { kind: 'wild'; zone: number; idx: number; from: 'world' }
+  | { kind: 'skip' }
+
+const ZONE_STAGE: StageTheme[] = ['dawn', 'cliff', 'hall', 'savanna', 'cave', 'night', 'golden', 'cosmos']
 
 type Action = 'attack' | 'arcana' | 'pray'
 type Phase = 'intro' | 'command' | 'question' | 'feedback' | 'anim' | 'result'
@@ -25,6 +32,14 @@ const MP_REGEN = 5
 interface Setup { monster: Monster; pool: TarotCard[]; basics: boolean; title: string; stage: StageTheme }
 
 function setupFor(mode: BattleMode, collected: string[]): Setup {
+  if (mode.kind === 'wild') {
+    // 野生怪物：從目前為止學過的牌出題；學過的牌太少就考基礎知識
+    const allowed = ZONES.slice(0, mode.zone + 1).flatMap((z) => z.cardIds).filter((id) => collected.includes(id))
+    return {
+      title: ZONES[mode.zone].name, stage: ZONE_STAGE[mode.zone], monster: ZONES[mode.zone].wild[mode.idx],
+      basics: allowed.length < 3, pool: poolFromIds(allowed.length >= 3 ? allowed : collected.length ? collected : ['m00']),
+    }
+  }
   if (mode.kind !== 'chapter') {
     return {
       title: '訓練場', stage: 'field', basics: false, pool: poolFromIds(collected),
@@ -240,11 +255,22 @@ export default function BattleScreen({ ctx, mode }: { ctx: GameCtx; mode: Battle
   const finish = (win: boolean) => {
     setPhase('result')
     if (!win) {
+      // 在大地圖上被打倒：回到這一區的入口
+      if (mode.kind === 'wild' || (mode.kind === 'chapter' && mode.from)) {
+        const zi = mode.kind === 'wild' ? mode.zone : ZONES.findIndex((z) => z.chapterId === mode.chapterId)
+        setSave((s) => ({ ...s, pos: zoneEntry(Math.max(0, zi)) }))
+      }
       gainXp(5, '失敗也是學習')
       setResult({ win, text: '別灰心！回去複習一下牌義，再來挑戰吧。' })
       return
     }
     setSave((s) => ({ ...s, battlesWon: s.battlesWon + 1 }))
+    if (mode.kind === 'wild') {
+      const xp = 10 + mode.zone * 3
+      gainXp(xp, `打倒${monster.name}`)
+      setResult({ win, text: `獲得 ${xp} XP！` })
+      return
+    }
     if (mode.kind !== 'chapter') {
       gainXp(XP.training, '訓練完成')
       setResult({ win, text: '訓練完成，熟練度提升了！' })
@@ -259,7 +285,7 @@ export default function BattleScreen({ ctx, mode }: { ctx: GameCtx; mode: Battle
     if (first && ch.id === 'boss') toast('🏆 你完成了愚者之旅！')
   }
 
-  const leave = () => go(mode.kind === 'chapter' ? { name: 'chapter', id: mode.chapterId } : { name: 'map' })
+  const leave = () => go('from' in mode && mode.from ? { name: 'map' } : mode.kind === 'chapter' ? { name: 'chapter', id: mode.chapterId } : { name: 'journey' })
   const toggleMute = () => { setMuted(!mute); setMute(!mute) }
 
   const ok = q && picked !== null && picked === q.answer

@@ -195,3 +195,51 @@
 .result-win .row { margin-top: 10px; }
 
 @media (max-width: 360px) { .options.two { grid-template-columns: 1fr; } }
+
+/* ================= 大地圖 ================= */
+.world-main { padding: 0; }
+.world {
+  position: relative; display: flex; flex-direction: column;
+  height: calc(100dvh - 66px - 58px - env(safe-area-inset-bottom, 0px));
+  min-height: 420px;
+}
+.world-hud { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #0e0a20; border-bottom: 1px solid var(--line); }
+.zone-chip { font-weight: 700; color: var(--gold); white-space: nowrap; font-size: 0.9rem; }
+.goal { flex: 1; min-width: 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-btn { padding: 4px 10px; flex-shrink: 0; }
+.world-canvas { position: relative; flex: 1; overflow: hidden; touch-action: none; }
+.world-canvas canvas { display: block; cursor: pointer; }
+
+.dpad { position: absolute; left: 14px; bottom: 14px; width: 132px; height: 132px; z-index: 5; touch-action: none; user-select: none; -webkit-user-select: none; }
+.dpad button { position: absolute; width: 44px; height: 44px; border-radius: 10px; border: 2px solid #ffffff40; background: #0e0a20b0; color: #fff; font-size: 0.9rem; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.dpad button:active { background: #f2c46499; }
+.dpad-up { left: 44px; top: 0; }
+.dpad-down { left: 44px; bottom: 0; }
+.dpad-left { left: 0; top: 44px; }
+.dpad-right { right: 0; top: 44px; }
+
+.zone-banner {
+  position: absolute; top: 22%; left: 0; right: 0; text-align: center; pointer-events: none; z-index: 4;
+  font-family: var(--serif); font-size: 1.6rem; font-weight: 700; letter-spacing: 0.3em; color: #fff;
+  background: linear-gradient(90deg, transparent, #0e0a20cc 20%, #0e0a20cc 80%, transparent); padding: 10px 0;
+  text-shadow: 0 0 12px #f2c464; animation: banner 0.5s ease-out;
+}
+.encounter-fx {
+  position: absolute; inset: 0; z-index: 9; pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, #000 0 15deg, transparent 15deg 30deg);
+  animation: swirl 0.75s ease-in forwards;
+}
+@keyframes swirl {
+  0% { opacity: 0; transform: scale(3) rotate(0); }
+  40% { opacity: 1; }
+  100% { opacity: 1; transform: scale(1) rotate(180deg); background-color: #000; }
+}
+
+.dialog-wrap { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; z-index: 10; animation: slideup 0.2s; }
+.dialog { display: flex; flex-direction: column; gap: 10px; }
+.dialog-head { display: flex; gap: 12px; align-items: flex-start; }
+.dialog-head > div { min-width: 0; }
+.dialog-title { color: var(--gold); }
+.dialog-head p { margin: 4px 0 0; font-size: 0.95rem; }
+.dialog-emoji { font-size: 2.6rem; line-height: 1; }
+.dialog-card { width: 64px; border-radius: 6px; box-shadow: 0 0 16px #f2c46488; flex-shrink: 0; }

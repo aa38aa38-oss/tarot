@@ -4,7 +4,7 @@ import { CHAPTERS } from '../data/world'
 import CardDetail from '../components/CardDetail'
 import { XP } from '../lib/game'
 
-export default function LessonScreen({ ctx, cardId, chapterId }: { ctx: GameCtx; cardId: string; chapterId?: string }) {
+export default function LessonScreen({ ctx, cardId, chapterId, from }: { ctx: GameCtx; cardId: string; chapterId?: string; from?: 'world' }) {
   const { save, setSave, gainXp, go } = ctx
   const card = cardById(cardId)
   const got = save.collected.includes(cardId)
@@ -18,12 +18,14 @@ export default function LessonScreen({ ctx, cardId, chapterId }: { ctx: GameCtx;
 
   return (
     <div className="stack">
-      <button className="back" onClick={() => go(ch ? { name: 'chapter', id: ch.id } : { name: 'codex' })}>
-        ← {ch ? ch.title : '圖鑑'}
+      <button className="back" onClick={() => go(from ? { name: 'map' } : ch ? { name: 'chapter', id: ch.id } : { name: 'codex' })}>
+        ← {from ? '返回地圖' : ch ? ch.title : '圖鑑'}
       </button>
       <CardDetail card={card} />
       <div className="sticky-actions">
-        {!got ? (
+        {from && got ? (
+          <button className="btn primary block" onClick={() => go({ name: 'map' })}>🗺️ 返回地圖，繼續旅程</button>
+        ) : !got ? (
           <button className="btn primary block" onClick={collect}>✨ 我學會了，收服這張牌（+{XP.lesson} XP）</button>
         ) : nextId ? (
           <button className="btn primary block" onClick={() => go({ name: 'lesson', cardId: nextId, chapterId })}>

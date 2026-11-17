@@ -10,6 +10,7 @@ export default function MapScreen({ ctx }: { ctx: GameCtx }) {
 
   return (
     <div className="stack">
+      <button className="back" onClick={() => go({ name: 'map' })}>← 返回大地圖</button>
       {REGIONS.map((r) => (
         <section key={r.id} className={r.available ? 'region' : 'region locked'}>
           <div className="region-head">

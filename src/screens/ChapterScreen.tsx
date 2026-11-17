@@ -11,7 +11,7 @@ export default function ChapterScreen({ ctx, chapterId }: { ctx: GameCtx; chapte
 
   return (
     <div className="stack">
-      <button className="back" onClick={() => go({ name: 'map' })}>← 返回地圖</button>
+      <button className="back" onClick={() => go({ name: 'journey' })}>← 章節列表</button>
       <h1>{ch.title}</h1>
       <p className="muted">{ch.subtitle}</p>
 

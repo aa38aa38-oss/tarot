@@ -14,12 +14,12 @@ export default function BasicsScreen({ ctx }: { ctx: GameCtx }) {
       setSave((s) => ({ ...s, basicsDone: true }))
       gainXp(XP.basics, '完成塔羅入門課')
     }
-    go({ name: 'chapter', id: 'c0' })
+    go({ name: 'map' })
   }
 
   return (
     <div className="stack">
-      <button className="back" onClick={() => go({ name: 'chapter', id: 'c0' })}>← 序章</button>
+      <button className="back" onClick={() => go({ name: 'map' })}>← 返回地圖</button>
       <div className="slide panel">
         <div className="slide-emoji">{slide.emoji}</div>
         <h2>{slide.title}</h2>

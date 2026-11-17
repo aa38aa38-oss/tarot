@@ -29,6 +29,7 @@ export interface SaveData {
   streak: number
   lastDailyDate: string | null
   battlesWon: number
+  pos?: { x: number; y: number } // 在大地圖上的位置
   updatedAt: number
 }
 

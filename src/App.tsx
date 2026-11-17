@@ -13,11 +13,13 @@ import DailyScreen from './screens/DailyScreen'
 import CommissionScreen from './screens/CommissionScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import SkipTestScreen from './screens/SkipTestScreen'
+import WorldScreen from './screens/WorldScreen'
 
 export type Screen =
   | { name: 'map' }
+  | { name: 'journey' }
   | { name: 'chapter'; id: string }
-  | { name: 'lesson'; cardId: string; chapterId?: string }
+  | { name: 'lesson'; cardId: string; chapterId?: string; from?: 'world' }
   | { name: 'basics' }
   | { name: 'battle'; mode: BattleMode }
   | { name: 'codex' }
@@ -107,10 +109,11 @@ export default function App() {
       </header>
       )}
 
-      <main className={inBattle ? 'main battle-main' : 'main'}>
-        {screen.name === 'map' && <MapScreen ctx={ctx} />}
+      <main className={screen.name === 'map' ? 'main world-main' : inBattle ? 'main battle-main' : 'main'}>
+        {screen.name === 'map' && <WorldScreen key={navKey} ctx={ctx} />}
+        {screen.name === 'journey' && <MapScreen ctx={ctx} />}
         {screen.name === 'chapter' && <ChapterScreen ctx={ctx} chapterId={screen.id} />}
-        {screen.name === 'lesson' && <LessonScreen ctx={ctx} cardId={screen.cardId} chapterId={screen.chapterId} />}
+        {screen.name === 'lesson' && <LessonScreen ctx={ctx} cardId={screen.cardId} chapterId={screen.chapterId} from={screen.from} />}
         {screen.name === 'basics' && <BasicsScreen ctx={ctx} />}
         {screen.name === 'battle' && screen.mode.kind === 'skip' && <SkipTestScreen key={navKey} ctx={ctx} />}
         {fullBattle && screen.name === 'battle' && <BattleScreen key={navKey} ctx={ctx} mode={screen.mode} />}
@@ -125,7 +128,7 @@ export default function App() {
           {TABS.map((t) => (
             <button
               key={t.screen}
-              className={screen.name === t.screen || (t.screen === 'map' && ['chapter', 'lesson', 'basics'].includes(screen.name)) ? 'tab active' : 'tab'}
+              className={screen.name === t.screen || (t.screen === 'map' && ['chapter', 'lesson', 'basics', 'journey'].includes(screen.name)) ? 'tab active' : 'tab'}
               onClick={() => go({ name: t.screen } as Screen)}
             >
               <span className="tab-icon">{t.icon}</span>
