@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { GameCtx } from '../App'
 import type { useSave } from '../lib/useSave'
 import { TITLES } from '../data/world'
@@ -9,9 +10,7 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
   const lv = levelInfo(save.xp)
   const mastered = Object.values(save.cardStats).filter((s) => s.box >= 4).length
 
-  const reset = () => {
-    if (confirm('確定要刪除所有進度、重新開始嗎？（雲端存檔也會一起刪除）這個動作無法復原。')) store.resetSave()
-  }
+  const [confirming, setConfirming] = useState(false)
 
   return (
     <div className="stack">
@@ -45,7 +44,17 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
       <AuthPanel user={store.user} />
 
       <h3>⚙️ 設定</h3>
-      <button className="btn danger" onClick={reset}>重新開始遊戲</button>
+      {confirming ? (
+        <div className="panel">
+          <p>確定要刪除所有進度、重新開始嗎？雲端存檔也會一起刪除，這個動作無法復原。</p>
+          <div className="row">
+            <button className="btn danger" onClick={() => store.resetSave()}>確定刪除</button>
+            <button className="btn ghost" onClick={() => setConfirming(false)}>取消</button>
+          </div>
+        </div>
+      ) : (
+        <button className="btn danger" onClick={() => setConfirming(true)}>重新開始遊戲</button>
+      )}
 
       <p className="small muted credit">
         牌面圖像：1909 年 Rider-Waite-Smith 塔羅，Pamela Colman Smith 繪製，屬公有領域。
