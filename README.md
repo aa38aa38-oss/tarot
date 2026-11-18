@@ -40,8 +40,10 @@ anon key 本來就會出現在前端，資料安全由資料表的 Row Level Sec
 
 ## 部署到 GitHub Pages
 
-1. repo **Settings → Pages → Source** 選 **GitHub Actions**。
-2. 推送到 `main` 分支，`.github/workflows/deploy.yml` 會自動建置並發布。
+網址：<https://aa38aa38-oss.github.io/tarot/>
+
+推送到 `main` 分支後，`.github/workflows/deploy.yml` 會自動建置，並把網站發布到 `gh-pages` 分支。
+若網站沒有出現，到 repo **Settings → Pages**，把 *Source* 設為 **Deploy from a branch**、分支選 `gh-pages` / `(root)`。
 
 ## 專案結構
 
