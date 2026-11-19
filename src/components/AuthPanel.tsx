@@ -3,7 +3,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase, cloudEnabled } from '../lib/supabase'
 import { GOOGLE_LOGIN } from '../config'
 
-export default function AuthPanel({ user, compact }: { user: User | null; compact?: boolean }) {
+export default function AuthPanel({ user, compact, syncError, onRetry }: { user: User | null; compact?: boolean; syncError?: string | null; onRetry?: () => void }) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [err, setErr] = useState('')
@@ -20,6 +20,13 @@ export default function AuthPanel({ user, compact }: { user: User | null; compac
       <div className="panel">
         <p>☁️ 已登入：<strong>{user.email}</strong></p>
         <p className="small muted">進度會自動同步到雲端，換手機或電腦登入同一個帳號就能接續遊玩。</p>
+        {syncError && (
+          <div className="sync-error small">
+            <p>⚠️ 雲端同步失敗（進度仍保存在這台裝置上）</p>
+            <code>{syncError}</code>
+            {onRetry && <button className="btn small" onClick={onRetry}>🔄 重試同步</button>}
+          </div>
+        )}
         <button className="btn ghost" onClick={() => supabase!.auth.signOut()}>登出</button>
       </div>
     )

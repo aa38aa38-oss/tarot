@@ -28,6 +28,7 @@ export function useSave() {
   const [save, setSaveState] = useState<SaveData | null>(loadLocal)
   const [user, setUser] = useState<User | null>(null)
   const [sync, setSync] = useState<SyncStatus>('offline')
+  const [syncError, setSyncError] = useState<string | null>(null)
   const saveRef = useRef(save)
   saveRef.current = save
   const timer = useRef<number>()
@@ -39,6 +40,7 @@ export function useSave() {
       .from('player_saves')
       .upsert({ user_id: uid, data: s, updated_at: new Date().toISOString() })
     setSync(error ? 'error' : 'synced')
+    setSyncError(error ? `上傳失敗：${error.code ?? ''} ${error.message}` : null)
   }, [])
 
   // 登入後：抓雲端存檔並與本機合併
@@ -49,6 +51,7 @@ export function useSave() {
       const { data, error } = await supabase.from('player_saves').select('data').eq('user_id', u.id).maybeSingle()
       if (error) {
         setSync('error')
+        setSyncError(`讀取失敗：${error.code ?? ''} ${error.message}`)
         return
       }
       const remote = (data?.data as SaveData | undefined) ?? null
@@ -110,5 +113,8 @@ export function useSave() {
     if (supabase && user) await supabase.from('player_saves').delete().eq('user_id', user.id)
   }
 
-  return { save, setSave, createSave, resetSave, user, sync }
+  // 手動重試：重新讀取雲端存檔並合併、上傳
+  const retrySync = useCallback(() => { if (user) pull(user) }, [user, pull])
+
+  return { save, setSave, createSave, resetSave, user, sync, syncError, retrySync }
 }

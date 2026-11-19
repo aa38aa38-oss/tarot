@@ -49,7 +49,7 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
       </ul>
 
       <h3>☁️ 雲端存檔</h3>
-      <AuthPanel user={store.user} />
+      <AuthPanel user={store.user} syncError={store.syncError} onRetry={store.retrySync} />
 
       <h3>⚙️ 設定</h3>
       <button className="btn ghost" onClick={() => ctx.go({ name: 'debug' })}>🚪 密門（測試模式）</button>
