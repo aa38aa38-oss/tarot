@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase, cloudEnabled } from '../lib/supabase'
+import { GOOGLE_LOGIN } from '../config'
 
 export default function AuthPanel({ user, compact }: { user: User | null; compact?: boolean }) {
   const [email, setEmail] = useState('')
@@ -37,10 +38,15 @@ export default function AuthPanel({ user, compact }: { user: User | null; compac
     <div className="panel">
       {!compact && <p>☁️ <strong>登入以使用雲端存檔</strong></p>}
       <p className="small muted">登入後，進度會存到雲端，換裝置也不會不見。</p>
-      <button className="btn" onClick={() => supabase!.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect } })}>
-        使用 Google 登入
-      </button>
-      <div className="or small muted">或用 Email 登入連結</div>
+      {GOOGLE_LOGIN && (
+        <>
+          <button className="btn" onClick={() => supabase!.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: redirect } })}>
+            使用 Google 登入
+          </button>
+          <div className="or small muted">或用 Email 登入連結</div>
+        </>
+      )}
+      {!GOOGLE_LOGIN && <p className="small muted">輸入 Email，我們會寄一封登入連結給你（不需要密碼）。請用「同一個瀏覽器」打開信裡的連結。</p>}
       {sent ? (
         <p className="small">📧 登入連結已寄到 <strong>{email}</strong>，請到信箱點擊連結。</p>
       ) : (
