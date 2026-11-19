@@ -413,7 +413,7 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
     g.restore()
   }
 
-  const onCanvasClick = (e: React.MouseEvent) => {
+  const onCanvasClick = (e: { clientX: number; clientY: number }) => {
     if (st.current.paused) return
     const r = canvasRef.current!.getBoundingClientRect()
     const S = st.current
@@ -427,7 +427,34 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
     pathTo(tx, ty)
   }
 
-  const press = (d: string | null) => { st.current.held = d; if (d) st.current.path = [] }
+  // ---------- 左半邊虛擬搖桿：按住拖曳＝持續移動；輕點＝走到那一格 ----------
+  const [stick, setStick] = useState<{ ox: number; oy: number; kx: number; ky: number } | null>(null)
+  const stickStart = useRef({ t: 0, x: 0, y: 0, moved: false })
+  const STICK_R = 46
+  const stickDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId)
+    const r = e.currentTarget.getBoundingClientRect()
+    const ox = e.clientX - r.left, oy = e.clientY - r.top
+    stickStart.current = { t: performance.now(), x: e.clientX, y: e.clientY, moved: false }
+    st.current.path = []
+    setStick({ ox, oy, kx: 0, ky: 0 })
+  }
+  const stickMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!stick) return
+    const dx = e.clientX - stickStart.current.x, dy = e.clientY - stickStart.current.y
+    const dist = Math.hypot(dx, dy)
+    const k = dist > STICK_R ? STICK_R / dist : 1
+    setStick({ ...stick, kx: dx * k, ky: dy * k })
+    if (dist < 14) { st.current.held = null; return }
+    stickStart.current.moved = true
+    st.current.held = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up'
+  }
+  const stickUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    st.current.held = null
+    const s = stickStart.current
+    if (!s.moved && performance.now() - s.t < 300) onCanvasClick(e)
+    setStick(null)
+  }
 
   const zone = ZONES[zoneIdx]
   const goal = zoneGoal(save, zoneIdx)
@@ -440,23 +467,26 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
         <button className="btn ghost small hud-btn" onClick={() => { persistPos(); go({ name: 'journey' }) }}>📋 章節</button>
       </div>
       <div className="world-canvas" ref={wrapRef}>
-        <canvas ref={canvasRef} onClick={onCanvasClick} />
+        <canvas ref={canvasRef} onClick={onCanvasClick} onContextMenu={(e) => e.preventDefault()} />
+        <div
+          className="stick-zone"
+          onPointerDown={stickDown} onPointerMove={stickMove} onPointerUp={stickUp}
+          onPointerCancel={() => { st.current.held = null; setStick(null) }}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          {stick ? (
+            <div className="stick-base" style={{ left: stick.ox, top: stick.oy }}>
+              <div className="stick-knob" style={{ transform: `translate(${stick.kx}px, ${stick.ky}px)` }} />
+            </div>
+          ) : (
+            <div className="stick-hint">
+              <div className="stick-base idle"><div className="stick-knob" /></div>
+              <span>左半邊按住拖曳移動</span>
+            </div>
+          )}
+        </div>
         {zoneBanner && <div className="zone-banner">{zoneBanner}</div>}
         {encounter && <div className="encounter-fx" />}
-      </div>
-      <div className="dpad" onContextMenu={(e) => e.preventDefault()}>
-        {(['up', 'left', 'right', 'down'] as const).map((d) => (
-          <button
-            key={d}
-            className={`dpad-${d}`}
-            aria-label={{ up: '上', down: '下', left: '左', right: '右' }[d]}
-            onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); press(d) }}
-            onPointerUp={() => press(null)}
-            onPointerCancel={() => press(null)}
-          >
-            {{ up: '▲', down: '▼', left: '◀', right: '▶' }[d]}
-          </button>
-        ))}
       </div>
 
       {dialog && (
