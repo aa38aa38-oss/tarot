@@ -16,3 +16,6 @@ create policy "update own save" on public.player_saves
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "delete own save" on public.player_saves
   for delete using (auth.uid() = user_id);
+
+-- 新版 Supabase 用 SQL 建的表預設不開放給 API，要授權給已登入的使用者
+grant select, insert, update, delete on public.player_saves to authenticated;
