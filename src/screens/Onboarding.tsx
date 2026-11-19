@@ -6,7 +6,7 @@ import { cloudEnabled } from '../lib/supabase'
 
 const AVATARS = ['🧙', '🧙‍♀️', '🧝', '🧝‍♀️', '🦊', '🐱', '🦉', '🐉', '🌙', '⭐']
 
-export default function Onboarding({ onCreate, user }: { onCreate: (s: SaveData) => void; user: User | null }) {
+export default function Onboarding({ onCreate, user, onSecret }: { onCreate: (s: SaveData) => void; user: User | null; onSecret: () => void }) {
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState(AVATARS[0])
 
@@ -44,6 +44,7 @@ export default function Onboarding({ onCreate, user }: { onCreate: (s: SaveData)
           <AuthPanel user={user} compact />
         </>
       )}
+      <button className="secret-door" onClick={onSecret}>🚪 密門（測試模式）</button>
       <p className="center small muted credit">牌面圖像：1909 年偉特塔羅（Pamela Colman Smith 繪，公有領域）</p>
     </div>
   )

@@ -52,6 +52,7 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
       <AuthPanel user={store.user} />
 
       <h3>⚙️ 設定</h3>
+      <button className="btn ghost" onClick={() => ctx.go({ name: 'debug' })}>🚪 密門（測試模式）</button>
       {confirming ? (
         <div className="panel">
           <p>確定要刪除所有進度、重新開始嗎？雲端存檔也會一起刪除，這個動作無法復原。</p>

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useSave } from './lib/useSave'
-import { SaveData, levelInfo, maxHp, titleFor } from './lib/game'
+import { SaveData, levelInfo, maxHp, newSave, titleFor } from './lib/game'
 import { cloudEnabled } from './lib/supabase'
 import Onboarding from './screens/Onboarding'
 import MapScreen from './screens/MapScreen'
@@ -14,6 +14,7 @@ import CommissionScreen from './screens/CommissionScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import SkipTestScreen from './screens/SkipTestScreen'
 import WorldScreen from './screens/WorldScreen'
+import DebugScreen from './screens/DebugScreen'
 import { GUARDIAN_SLOT_LEVELS, SKILL_TIERS, guardianSlots, pendingSkillTier } from './lib/powers'
 
 export type Screen =
@@ -27,6 +28,7 @@ export type Screen =
   | { name: 'daily' }
   | { name: 'commission' }
   | { name: 'profile' }
+  | { name: 'debug' }
 
 export interface GameCtx {
   save: SaveData
@@ -92,7 +94,13 @@ export default function App() {
   const back = useCallback(() => show(history.current.pop() ?? { name: 'map' }), [show])
 
   if (!save) {
-    return <Onboarding onCreate={store.createSave} user={store.user} />
+    return (
+      <Onboarding
+        onCreate={store.createSave}
+        user={store.user}
+        onSecret={() => { store.createSave(newSave('測試員', '🧪')); show({ name: 'debug' }) }}
+      />
+    )
   }
 
   const ctx: GameCtx = { save, setSave, gainXp, go, back, toast }
@@ -138,6 +146,7 @@ export default function App() {
         {screen.name === 'daily' && <DailyScreen ctx={ctx} />}
         {screen.name === 'commission' && <CommissionScreen ctx={ctx} />}
         {screen.name === 'profile' && <ProfileScreen ctx={ctx} store={store} />}
+        {screen.name === 'debug' && <DebugScreen ctx={ctx} />}
       </main>
 
       {!inBattle && (

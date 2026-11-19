@@ -10,9 +10,9 @@ import { isMuted, setMuted, sfx } from '../lib/sfx'
 import QuestionCard from '../components/QuestionCard'
 
 export type BattleMode =
-  | { kind: 'chapter'; chapterId: string; from?: 'world' }
-  | { kind: 'training'; from?: 'world' }
-  | { kind: 'wild'; zone: number; idx: number; from: 'world' }
+  | { kind: 'chapter'; chapterId: string; from?: 'world' | 'debug' }
+  | { kind: 'training'; from?: 'world' | 'debug' }
+  | { kind: 'wild'; zone: number; idx: number; from: 'world' | 'debug' }
   | { kind: 'skip' }
 
 const ZONE_STAGE: StageTheme[] = ['dawn', 'cliff', 'hall', 'savanna', 'cave', 'night', 'golden', 'cosmos']
@@ -365,7 +365,7 @@ export default function BattleScreen({ ctx, mode }: { ctx: GameCtx; mode: Battle
     setPhase('result')
     if (!win) {
       // 在大地圖上被打倒：回到這一區的入口
-      if (mode.kind === 'wild' || (mode.kind === 'chapter' && mode.from)) {
+      if ((mode.kind === 'wild' || mode.kind === 'chapter') && mode.from === 'world') {
         const zi = mode.kind === 'wild' ? mode.zone : ZONES.findIndex((z) => z.chapterId === mode.chapterId)
         setSave((s) => ({ ...s, pos: zoneEntry(Math.max(0, zi)) }))
       }
@@ -399,7 +399,8 @@ export default function BattleScreen({ ctx, mode }: { ctx: GameCtx; mode: Battle
     if (first && ch.id === 'boss') toast('🏆 你完成了愚者之旅！')
   }
 
-  const leave = () => go('from' in mode && mode.from ? { name: 'map' } : mode.kind === 'chapter' ? { name: 'chapter', id: mode.chapterId } : { name: 'journey' })
+  const from = 'from' in mode ? mode.from : undefined
+  const leave = () => go(from === 'world' ? { name: 'map' } : from === 'debug' ? { name: 'debug' } : mode.kind === 'chapter' ? { name: 'chapter', id: mode.chapterId } : { name: 'journey' })
   const toggleMute = () => { setMuted(!mute); setMute(!mute) }
 
   const ok = q && picked !== null && picked === q.answer

@@ -58,6 +58,9 @@ export const newSave = (name = '', avatar = '🧙'): SaveData => ({
 // 升到下一級所需 XP：40, 60, 80, 100 …
 export const xpToNext = (level: number) => 40 + 20 * (level - 1)
 
+// 從 0 XP 升到某個等級需要的總經驗值
+export const xpForLevel = (level: number) => Array.from({ length: Math.max(0, level - 1) }, (_, i) => xpToNext(i + 1)).reduce((a, b) => a + b, 0)
+
 export function levelInfo(xp: number) {
   let level = 1
   let rest = xp

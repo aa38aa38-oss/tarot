@@ -338,3 +338,15 @@ details summary { cursor: pointer; }
 .g-pick img { width: 40px; border-radius: 4px; flex-shrink: 0; }
 .g-pick.on { border-color: var(--green); }
 .g-pick-text { display: flex; flex-direction: column; min-width: 0; }
+
+/* ---------- 密門 ---------- */
+.secret-door { align-self: center; background: none; border: 1px dashed var(--line); color: var(--muted); border-radius: 99px; padding: 6px 16px; font-size: 0.85rem; }
+.debug input[type="range"] { padding: 0; accent-color: var(--gold); }
+.debug-lv { font-family: var(--serif); font-size: 1.6rem; color: var(--gold); }
+.debug-skill { display: flex; gap: 8px; align-items: baseline; }
+.debug-skill .chips { margin: 0; }
+.debug-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+@media (min-width: 520px) { .debug-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.debug-foe { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; }
+.debug-foe:hover { border-color: var(--gold2); }
+.debug-foe.boss { border-color: #8a3a4a; background: linear-gradient(135deg, #3a1a2a, var(--bg2)); }
