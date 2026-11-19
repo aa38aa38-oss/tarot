@@ -30,6 +30,7 @@ export default function CommissionScreen({ ctx }: { ctx: GameCtx }) {
   if (save.collected.length < 3) {
     return (
       <div className="stack">
+        <button className="back" onClick={ctx.back}>← 返回</button>
         <h1>📜 委託看板</h1>
         <div className="panel center">
           <div className="big">🔒</div>
@@ -69,6 +70,7 @@ export default function CommissionScreen({ ctx }: { ctx: GameCtx }) {
   if (!job) {
     return (
       <div className="stack">
+        <button className="back" onClick={ctx.back}>← 返回</button>
         <h1>📜 委託看板</h1>
         <p className="muted small">村民帶著煩惱來找你。抽出三張牌（從你已收服的牌中），用點選的方式完成解讀。等級越高，能接的委託越進階。</p>
         <div className="panel row small">

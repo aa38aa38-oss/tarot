@@ -15,6 +15,7 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
 
   return (
     <div className="stack">
+      <button className="back" onClick={ctx.back}>← 返回</button>
       <div className="profile-head">
         <span className="avatar huge">{save.avatar}</span>
         <h1>{save.name}</h1>

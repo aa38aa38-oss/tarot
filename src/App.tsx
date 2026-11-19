@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useSave } from './lib/useSave'
 import { SaveData, levelInfo, maxHp, titleFor } from './lib/game'
 import { cloudEnabled } from './lib/supabase'
@@ -33,6 +33,7 @@ export interface GameCtx {
   setSave: (u: (s: SaveData) => SaveData) => void
   gainXp: (amount: number, reason: string) => void
   go: (s: Screen) => void
+  back: () => void // 回到上一頁
   toast: (msg: string) => void
 }
 
@@ -71,17 +72,30 @@ export default function App() {
     [setSave, toast],
   )
 
-  const go = useCallback((s: Screen) => {
+  // 瀏覽紀錄：讓「← 返回」可以回到上一頁（戰鬥畫面不記錄，避免返回後重打）
+  const history = useRef<Screen[]>([])
+  const screenRef = useRef(screen)
+  screenRef.current = screen
+  const show = useCallback((s: Screen) => {
     setScreen(s)
     setNavKey((k) => k + 1)
     window.scrollTo(0, 0)
   }, [])
+  const go = useCallback((s: Screen) => {
+    const cur = screenRef.current
+    if (cur.name !== 'battle' && JSON.stringify(cur) !== JSON.stringify(s)) {
+      history.current.push(cur)
+      if (history.current.length > 30) history.current.shift()
+    }
+    show(s)
+  }, [show])
+  const back = useCallback(() => show(history.current.pop() ?? { name: 'map' }), [show])
 
   if (!save) {
     return <Onboarding onCreate={store.createSave} user={store.user} />
   }
 
-  const ctx: GameCtx = { save, setSave, gainXp, go, toast }
+  const ctx: GameCtx = { save, setSave, gainXp, go, back, toast }
   const lv = levelInfo(save.xp)
   const inBattle = screen.name === 'battle'
   // 有技能可選，或守護牌欄位空著 → 角色分頁亮紅點

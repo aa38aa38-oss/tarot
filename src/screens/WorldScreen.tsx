@@ -26,6 +26,8 @@ interface Dialog {
 }
 
 const DIRS: Record<string, [number, number]> = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }
+// 八方向（含斜走），找路用
+const DIRS8: [number, number][] = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, -1], [-1, 1], [1, 1]]
 const KEY_DIR: Record<string, string> = {
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right',
 }
@@ -48,7 +50,8 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
   const st = useRef({
     x: start.x, y: start.y, rx: start.x, ry: start.y,
     fromX: start.x, fromY: start.y, t0: 0, moving: false,
-    held: null as string | null, path: [] as [number, number][],
+    held: null as [number, number] | null, path: [] as [number, number][], keys: new Set<string>(),
+    stepMs: STEP_MS,
     paused: false, lastMonster: 0, zone: zoneOfY(start.y),
   })
 
@@ -171,17 +174,24 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
   }
 
   // ---------- 移動 ----------
-  const tryStep = (dx: number, dy: number) => {
+  // 斜走時，兩側至少要有一邊是通的（避免穿過牆角）
+  const diagOk = (x: number, y: number, dx: number, dy: number) => walkable(x + dx, y) || walkable(x, y + dy)
+
+  const tryStep = (dx: number, dy: number, quiet = false): boolean => {
     const S = st.current
     const nx = S.x + dx, ny = S.y + dy
+    const diag = dx !== 0 && dy !== 0
     const w = memory.wilds!.find((m) => m.x === nx && m.y === ny)
     if (w) return meetWild(w)
-    if (!walkable(nx, ny)) {
-      if (objAt(nx, ny) || guardianOn(nx, ny) >= 0) interact(nx, ny)
-      else if (tiles[ny]?.[nx] === 'gate') interact(GATE_X, ny + 1)
+    if (!walkable(nx, ny) || (diag && !diagOk(S.x, S.y, dx, dy))) {
+      if (!quiet && (objAt(nx, ny) || guardianOn(nx, ny) >= 0)) { interact(nx, ny); return false }
+      if (!quiet && !diag && tiles[ny]?.[nx] === 'gate') { interact(GATE_X, ny + 1); return false }
+      // 斜走被擋住：改成沿著能走的方向滑過去
+      if (diag) return tryStep(dx, 0, true) || tryStep(0, dy, true)
       return false
     }
     S.fromX = S.x; S.fromY = S.y; S.x = nx; S.y = ny; S.t0 = performance.now(); S.moving = true
+    S.stepMs = diag ? STEP_MS * 1.4 : STEP_MS // 斜走距離較長，速度保持一致
     return true
   }
 
@@ -205,11 +215,12 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
     while (q.length) {
       const [x, y] = q.shift()!
       if (x === tx && y === ty) { found = [x, y]; break }
-      for (const [dx, dy] of Object.values(DIRS)) {
+      for (const [dx, dy] of DIRS8) {
         const nx = x + dx, ny = y + dy
         if (prev.has(key(nx, ny))) continue
         const isTarget = nx === tx && ny === ty
         if (!(isTarget && target) && !walkable(nx, ny)) continue
+        if (dx && dy && !diagOk(x, y, dx, dy)) continue
         prev.set(key(nx, ny), key(x, y))
         q.push([nx, ny])
       }
@@ -250,8 +261,12 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
       const d = KEY_DIR[e.key]
       if (!d) return
       e.preventDefault()
-      st.current.held = e.type === 'keydown' ? d : st.current.held === d ? null : st.current.held
-      if (e.type === 'keydown') st.current.path = []
+      // 同時按兩個方向鍵＝斜走
+      const S = st.current
+      if (e.type === 'keydown') { S.keys.add(d); S.path = [] } else S.keys.delete(d)
+      let vx = 0, vy = 0
+      S.keys.forEach((k) => { vx += DIRS[k][0]; vy += DIRS[k][1] })
+      S.held = vx || vy ? [Math.sign(vx), Math.sign(vy)] : null
     }
     window.addEventListener('keydown', onKey)
     window.addEventListener('keyup', onKey)
@@ -261,7 +276,7 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
       const S = st.current
       // 移動插值
       if (S.moving) {
-        const p = Math.min(1, (now - S.t0) / STEP_MS)
+        const p = Math.min(1, (now - S.t0) / S.stepMs)
         S.rx = S.fromX + (S.x - S.fromX) * p
         S.ry = S.fromY + (S.y - S.fromY) * p
         if (p >= 1) {
@@ -280,8 +295,7 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
           const [nx, ny] = S.path.shift()!
           if (!tryStep(nx - S.x, ny - S.y)) S.path = []
         } else if (S.held) {
-          const [dx, dy] = DIRS[S.held]
-          tryStep(dx, dy)
+          tryStep(S.held[0], S.held[1])
         }
       }
       // 野生怪物遊走
@@ -447,7 +461,10 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
     setStick({ ...stick, kx: dx * k, ky: dy * k })
     if (dist < 14) { st.current.held = null; return }
     stickStart.current.moved = true
-    st.current.held = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up'
+    // 依角度分成 8 個方向（每 45° 一格）
+    const sector = Math.round(Math.atan2(dy, dx) / (Math.PI / 4))
+    const ang = sector * (Math.PI / 4)
+    st.current.held = [Math.round(Math.cos(ang)), Math.round(Math.sin(ang))]
   }
   const stickUp = (e: React.PointerEvent<HTMLDivElement>) => {
     st.current.held = null
@@ -481,7 +498,7 @@ export default function WorldScreen({ ctx }: { ctx: GameCtx }) {
           ) : (
             <div className="stick-hint">
               <div className="stick-base idle"><div className="stick-knob" /></div>
-              <span>左半邊按住拖曳移動</span>
+              <span>左半邊按住拖曳移動（可斜走）</span>
             </div>
           )}
         </div>

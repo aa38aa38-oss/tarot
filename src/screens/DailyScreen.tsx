@@ -55,6 +55,7 @@ export default function DailyScreen({ ctx }: { ctx: GameCtx }) {
 
   return (
     <div className="stack">
+      <button className="back" onClick={ctx.back}>← 返回</button>
       <h1>🌅 每日一抽</h1>
       <p className="muted small">每天抽一張大牌，點選今天的關鍵字和心情，再回答一題小測驗。連續天數越多，獎勵越多！目前連續 {save.streak} 天。</p>
 

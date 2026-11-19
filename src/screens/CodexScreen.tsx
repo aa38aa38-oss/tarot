@@ -29,6 +29,7 @@ export default function CodexScreen({ ctx }: { ctx: GameCtx }) {
 
   return (
     <div className="stack">
+      <button className="back" onClick={ctx.back}>← 返回</button>
       <h1>📖 卡牌圖鑑</h1>
       <p className="muted small">已收服 {save.collected.length} / 78。學完一張牌就能收服它；答題越熟練，星星越多。</p>
 
