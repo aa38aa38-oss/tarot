@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { GameCtx } from '../App'
 import { MAJOR_ARCANA } from '../data/majorArcana'
-import { Question, makeCardQuestion } from '../lib/questions'
+import { Question, makeCardQuestion, typesOfTier } from '../lib/questions'
 import { XP, recordAnswer } from '../lib/game'
 import QuestionCard from '../components/QuestionCard'
 
@@ -12,7 +12,7 @@ const PASS = 12
 export default function SkipTestScreen({ ctx }: { ctx: GameCtx }) {
   const { save, setSave, gainXp, go } = ctx
   const [started, setStarted] = useState(false)
-  const [q, setQ] = useState<Question>(() => makeCardQuestion(save, MAJOR_ARCANA))
+  const [q, setQ] = useState<Question>(() => makeCardQuestion(save, MAJOR_ARCANA, undefined, { types: typesOfTier(1, 4) }))
   const [picked, setPicked] = useState<number | null>(null)
   const [asked, setAsked] = useState(1)
   const [score, setScore] = useState(0)
@@ -40,7 +40,7 @@ export default function SkipTestScreen({ ctx }: { ctx: GameCtx }) {
       }
       return
     }
-    setQ(makeCardQuestion(save, MAJOR_ARCANA, q.cardId))
+    setQ(makeCardQuestion(save, MAJOR_ARCANA, q.cardId, { types: typesOfTier(1, 4) }))
     setPicked(null)
     setAsked((a) => a + 1)
   }

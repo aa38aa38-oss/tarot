@@ -314,3 +314,27 @@ details summary { cursor: pointer; }
 .result-panel { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
 .stars-big { font-size: 2rem; letter-spacing: 4px; }
 .daily-pick .label { margin-top: 0; }
+
+/* ---------- 技能與守護牌 ---------- */
+.tab-icon { position: relative; }
+.tab-dot { position: absolute; top: -2px; right: -6px; width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 6px var(--red); }
+.skill-choice { border-color: var(--gold2); }
+.skill-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 8px 0; }
+.skill-card { background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+.skill-card.active { border-color: var(--gold); box-shadow: 0 0 12px #f2c46455; }
+.skill-emoji { font-size: 2rem; }
+.skill-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.skill-list li { display: flex; gap: 8px; align-items: baseline; padding: 6px 10px; border-left: 3px solid var(--line); color: var(--muted); }
+.skill-list li.got { border-color: var(--gold); color: var(--text); }
+.skill-lv { flex-shrink: 0; width: 44px; color: var(--gold2); font-size: 0.85rem; }
+.guardian-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.g-slot { background: var(--panel); border: 2px dashed var(--line); border-radius: 12px; padding: 8px 6px; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; text-align: center; color: var(--muted); }
+.g-slot img { width: 54px; border-radius: 4px; }
+.g-slot.active { border-color: var(--gold); border-style: solid; }
+.g-slot.locked { opacity: 0.5; font-size: 1.4rem; }
+.g-effect { color: var(--text); line-height: 1.35; font-size: 0.75rem; }
+.g-pick-list { display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+.g-pick { display: flex; gap: 10px; align-items: center; text-align: left; background: var(--bg2); border: 2px solid var(--line); border-radius: 10px; padding: 6px; }
+.g-pick img { width: 40px; border-radius: 4px; flex-shrink: 0; }
+.g-pick.on { border-color: var(--green); }
+.g-pick-text { display: flex; flex-direction: column; min-width: 0; }

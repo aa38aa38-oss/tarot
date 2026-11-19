@@ -14,6 +14,7 @@ import CommissionScreen from './screens/CommissionScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import SkipTestScreen from './screens/SkipTestScreen'
 import WorldScreen from './screens/WorldScreen'
+import { GUARDIAN_SLOT_LEVELS, SKILL_TIERS, guardianSlots, pendingSkillTier } from './lib/powers'
 
 export type Screen =
   | { name: 'map' }
@@ -83,6 +84,8 @@ export default function App() {
   const ctx: GameCtx = { save, setSave, gainXp, go, toast }
   const lv = levelInfo(save.xp)
   const inBattle = screen.name === 'battle'
+  // 有技能可選，或守護牌欄位空著 → 角色分頁亮紅點
+  const needsAttention = !!pendingSkillTier(save) || (save.guardians ?? []).length < Math.min(guardianSlots(lv.level), save.collected.length)
   const fullBattle = screen.name === 'battle' && screen.mode.kind !== 'skip'
 
   return (
@@ -131,7 +134,7 @@ export default function App() {
               className={screen.name === t.screen || (t.screen === 'map' && ['chapter', 'lesson', 'basics', 'journey'].includes(screen.name)) ? 'tab active' : 'tab'}
               onClick={() => go({ name: t.screen } as Screen)}
             >
-              <span className="tab-icon">{t.icon}</span>
+              <span className="tab-icon">{t.icon}{t.screen === 'profile' && needsAttention && <span className="tab-dot" />}</span>
               <span className="tab-label">{t.label}</span>
             </button>
           ))}
@@ -152,8 +155,15 @@ export default function App() {
             <p className="levelup-lv">Lv {levelUp}</p>
             <p>稱號：{titleFor(levelUp)}</p>
             <p className="muted small">生命值上限提升為 {maxHp(levelUp)}</p>
+            {SKILL_TIERS.some((t) => t.level === levelUp) && <p className="small">✨ 可以學習新技能了！到「角色」頁二選一。</p>}
+            {GUARDIAN_SLOT_LEVELS.includes(levelUp) && <p className="small">🛡️ 開放了新的守護牌欄位！</p>}
             {levelUp === 11 && <p className="small">🎉 你已完成新手村！下一個區域「逆影之森」即將開放。</p>}
-            <button className="btn primary">太好了！</button>
+            <div className="row">
+              <button className="btn ghost grow">太好了！</button>
+              {(SKILL_TIERS.some((t) => t.level === levelUp) || GUARDIAN_SLOT_LEVELS.includes(levelUp)) && (
+                <button className="btn primary grow" onClick={() => go({ name: 'profile' })}>前往角色頁</button>
+              )}
+            </div>
           </div>
         </div>
       )}

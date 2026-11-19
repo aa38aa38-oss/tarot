@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { GameCtx } from '../App'
 import { MAJOR_ARCANA } from '../data/majorArcana'
 import CardDetail from '../components/CardDetail'
+import { guardianText } from '../lib/powers'
 
 const SUITS = [
   { emoji: '🪄', name: '權杖', el: '火' },
@@ -20,6 +21,7 @@ export default function CodexScreen({ ctx }: { ctx: GameCtx }) {
       <div className="stack">
         <button className="back" onClick={() => setOpen(null)}>← 圖鑑</button>
         <Mastery box={save.cardStats[card.id]?.box ?? 0} stat={save.cardStats[card.id]} />
+        <div className="panel small">🛡️ 當作守護牌時：<strong>{guardianText(save, card.id)}</strong><span className="muted">（熟練度越高越強）</span></div>
         <CardDetail card={card} />
       </div>
     )

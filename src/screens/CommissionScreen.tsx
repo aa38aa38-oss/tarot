@@ -8,6 +8,7 @@ import {
   COMMISSION_TYPES, CommissionType, Slot, distractors, makeAdvice, makeApprentices, makeSlots, makeSpot, starsFor,
 } from '../lib/reading'
 import { commissionPrompt } from '../lib/prompts'
+import { deriveStats } from '../lib/powers'
 import { CopyButton } from '../components/CardDetail'
 import { sfx } from '../lib/sfx'
 
@@ -58,7 +59,7 @@ export default function CommissionScreen({ ctx }: { ctx: GameCtx }) {
   const finish = (right: number, total: number) => {
     const stars = starsFor(right, total)
     setSave((s) => ({ ...s, commissionsDone: s.commissionsDone + 1, commissionDates: [...s.commissionDates.slice(-50), today()] }))
-    if (remaining > 0) gainXp(stars * 10, `委託完成 ${'⭐'.repeat(stars)}`)
+    if (remaining > 0) gainXp(Math.round(stars * 10 * (1 + deriveStats(save).studyXpPct / 100)), `委託完成 ${'⭐'.repeat(stars)}`)
     else toast('今天的委託獎勵已領完，但練習永遠有價值！')
     stars === 3 ? sfx.victory() : sfx.correct()
     setStep('done')

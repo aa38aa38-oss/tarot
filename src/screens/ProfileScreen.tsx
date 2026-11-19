@@ -4,6 +4,7 @@ import type { useSave } from '../lib/useSave'
 import { TITLES } from '../data/world'
 import { levelInfo, maxHp, titleFor } from '../lib/game'
 import AuthPanel from '../components/AuthPanel'
+import { GuardiansPanel, SkillsPanel } from '../components/PowersPanel'
 
 export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: ReturnType<typeof useSave> }) {
   const { save } = ctx
@@ -30,6 +31,12 @@ export default function ProfileScreen({ ctx, store }: { ctx: GameCtx; store: Ret
         <div className="stat"><strong>{save.streak}</strong><span>連續抽牌</span></div>
         <div className="stat"><strong>{save.journal.length}</strong><span>日記篇數</span></div>
       </div>
+
+      <h3>✨ 技能</h3>
+      <SkillsPanel ctx={ctx} />
+
+      <h3>🛡️ 守護牌</h3>
+      <GuardiansPanel ctx={ctx} />
 
       <h3>🏅 稱號之路</h3>
       <ul className="titles">

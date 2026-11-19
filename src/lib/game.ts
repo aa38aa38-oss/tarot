@@ -30,6 +30,8 @@ export interface SaveData {
   lastDailyDate: string | null
   battlesWon: number
   pos?: { x: number; y: number } // 在大地圖上的位置
+  skills?: string[] // 已學會的技能
+  guardians?: string[] // 裝備中的守護牌
   updatedAt: number
 }
 

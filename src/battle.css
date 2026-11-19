@@ -165,7 +165,7 @@
 .win-title { font-size: 0.8rem; color: var(--gold); margin-bottom: 4px; }
 .hud-row { display: grid; grid-template-columns: 42% 1fr; gap: 8px; }
 .commands { display: flex; flex-direction: column; gap: 2px; padding: 6px; }
-.commands button { background: none; border: 0; text-align: left; padding: 9px 8px 9px 22px; border-radius: 6px; position: relative; font-weight: 500; font-size: 0.98rem; }
+.commands button { background: none; border: 0; text-align: left; padding: 8px 6px 8px 20px; border-radius: 6px; position: relative; font-weight: 500; font-size: 0.95rem; white-space: nowrap; }
 .commands button small { color: var(--blue); font-size: 0.7rem; }
 .commands button:not(:disabled):hover, .commands button:not(:disabled):focus-visible { background: #ffffff14; outline: none; }
 .commands button:not(:disabled):hover::before, .commands button:not(:disabled):focus-visible::before { content: "▶"; position: absolute; left: 4px; color: var(--gold); font-size: 0.75rem; top: 50%; transform: translateY(-50%); animation: cursor 0.6s ease-in-out infinite alternate; }
@@ -242,3 +242,6 @@
 .dialog-head p { margin: 4px 0 0; font-size: 0.95rem; }
 .dialog-emoji { font-size: 2.6rem; line-height: 1; }
 .dialog-card { width: 64px; border-radius: 6px; box-shadow: 0 0 16px #f2c46488; flex-shrink: 0; }
+
+.mini-skill { background: #2e2558; border: 1px solid var(--gold2); color: var(--gold); border-radius: 99px; padding: 2px 10px; font-size: 0.75rem; }
+.option.eliminated { opacity: 0.25; text-decoration: line-through; }

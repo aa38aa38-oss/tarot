@@ -17,7 +17,25 @@ export interface Question {
   explain: string
 }
 
+// 意思相近、容易搞混的牌（高等級時當干擾選項）
+const SIMILAR: string[][] = [
+  ['m02', 'm18', 'm09', 'm17'], // 女祭司、月亮、隱士、星星：直覺／內在
+  ['m04', 'm05', 'm11'], // 皇帝、教皇、正義：規則／權威
+  ['m03', 'm19', 'm17'], // 皇后、太陽、星星：豐盛／希望
+  ['m07', 'm08', 'm01'], // 戰車、力量、魔術師：意志／力量
+  ['m13', 'm16', 'm20', 'm10'], // 死神、高塔、審判、命運之輪：轉變
+  ['m06', 'm15', 'm14'], // 戀人、惡魔、節制：關係／慾望／平衡
+  ['m00', 'm21', 'm12'], // 愚者、世界、吊人：起點／終點／換角度
+]
+let similarMode = false
+
 const pickDistractors = (card: TarotCard, n: number, pool: TarotCard[]) => {
+  if (similarMode) {
+    const group = SIMILAR.filter((g) => g.includes(card.id)).flat().filter((id) => id !== card.id)
+    const near = shuffle(MAJOR_ARCANA.filter((c) => group.includes(c.id)))
+    const rest = shuffle(MAJOR_ARCANA.filter((c) => c.id !== card.id && !group.includes(c.id)))
+    return [...near.slice(0, 2), ...rest].slice(0, n)
+  }
   // 干擾選項優先從同一池中挑，不夠再從全部大牌補
   const others = shuffle(pool.filter((c) => c.id !== card.id))
   const extra = shuffle(MAJOR_ARCANA.filter((c) => c.id !== card.id && !others.includes(c)))
@@ -91,14 +109,33 @@ const GENERATORS: Gen[] = [
 // 不同題型的出現權重：越前面越基礎
 const TYPE_WEIGHTS = [4, 2, 4, 3, 2, 3, 3, 1]
 
-// 秘術用較難的題型：牌義、象徵、情境
-export const HARD_TYPES = [3, 5, 6]
+// 題目難度：★1 認牌　★2 牌義　★3 象徵／星象　★4 情境應用
+const TYPE_TIER = [1, 1, 2, 2, 1, 3, 4, 3]
+export const typesOfTier = (min: number, max: number) => TYPE_TIER.map((t, i) => (t >= min && t <= max ? i : -1)).filter((i) => i >= 0)
 
-export function makeCardQuestion(save: SaveData, pool: TarotCard[], avoid?: string, types?: number[]): Question {
+// 秘術用較難的題型：象徵、星象、情境
+export const HARD_TYPES = typesOfTier(3, 4)
+export const SCENARIO_TYPES = typesOfTier(4, 4)
+
+export interface QOpts {
+  types?: number[] // 指定題型；沒指定就依「這張牌的熟練度」決定難度
+  similar?: boolean // 用意思相近的牌當干擾選項
+}
+
+// 熟練度 0–1★ → ★1–2 題；2–3★ → ★2–3 題；4–5★ → ★3–4 題
+const tierRangeForBox = (box: number): [number, number] => (box <= 1 ? [1, 2] : box <= 3 ? [2, 3] : [3, 4])
+
+export function makeCardQuestion(save: SaveData, pool: TarotCard[], avoid?: string, opts: QOpts = {}): Question {
   const candidates = pool.length > 1 && avoid ? pool.filter((c) => c.id !== avoid) : pool
   const card = weightedPick(candidates, (c) => weightFor(save, c.id))
-  const idx = weightedPick(types ?? GENERATORS.map((_, i) => i), (i) => TYPE_WEIGHTS[i])
-  return GENERATORS[idx](card, pool)
+  const types = opts.types ?? typesOfTier(...tierRangeForBox(save.cardStats[card.id]?.box ?? 0))
+  const idx = weightedPick(types, (i) => TYPE_WEIGHTS[i])
+  similarMode = !!opts.similar
+  try {
+    return GENERATORS[idx](card, pool)
+  } finally {
+    similarMode = false
+  }
 }
 
 export function makeBasicsQuestion(usedIdx: Set<number>): Question {
